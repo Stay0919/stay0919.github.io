@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>John Doe — Developer & Designer</title>
+<style>
+  /* ========================================
+     Reset & Variables
+     ======================================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050505;
+    --surface: #0a0a0a;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #e6e6e6;
+    --text-mid: #999;
+    --text-dim: #555;
+    --line: rgba(255,255,255,0.06);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+  }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ========================================
+     Particle Canvas
+     ======================================== */
+  #particles {
+    position: fixed; top: 0; left: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ========================================
+     Layout
+     ======================================== */
+  section {
+    position: relative; z-index: 1;
+    padding: 120px 24px;
+    pointer-events: none;
+  }
+  section.hero-section { padding-top: 0; }
+  section > * { pointer-events: auto; }
+
+  .container {
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+
+  /* ========================================
+     Nav Dots (right)
+     ======================================== */
+  .nav-dots {
+    position: fixed; right: 28px; top: 50%; transform: translateY(-50%);
+    z-index: 200; display: flex; flex-direction: column; gap: 18px;
+  }
+  .nav-dot {
+    width: 1px; height: 20px;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.4s ease;
+    cursor: pointer; position: relative;
+    display: block;
+  }
+  .nav-dot:hover, .nav-dot.active {
+    background: #fff;
+    height: 32px;
+  }
+  .nav-dot .label {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: #666; white-space: nowrap; letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .nav-dot:hover .label { opacity: 1; color: #aaa; }
+
+  /* ========================================
+     Section Headers
+     ======================================== */
+  .section-label {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: clamp(32px, 5vw, 56px); font-weight: 300;
+    letter-spacing: -1px; margin-bottom: 56px; line-height: 1.15;
+  }
+
+  /* ========================================
+     Reveal Animation
+     ======================================== */
+  .reveal {
+    opacity: 0; transform: translateY(48px);
+    transition: opacity 0.9s cubic-bezier(0.22,0.61,0.36,1),
+                transform 0.9s cubic-bezier(0.22,0.61,0.36,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ========================================
+     Hero
+     ======================================== */
+  .hero-flex {
+    display: flex; flex-direction: column; justify-content: center;
+    min-height: 100vh; text-align: left;
+  }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 24px;
+  }
+  .hero-flex h1 {
+    font-size: clamp(48px, 10vw, 96px); font-weight: 200;
+    letter-spacing: -3px; line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .hero-flex h1 em {
+    font-style: normal; font-weight: 600;
+  }
+  .hero-flex .subtitle {
+    font-size: 20px; color: var(--text-mid); font-weight: 300;
+    max-width: 520px; line-height: 1.5;
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    min-height: 32px;
+  }
+  .hero-flex .subtitle .cursor {
+    display: inline-block; width: 1px; height: 22px;
+    background: #fff; margin-left: 4px;
+    vertical-align: text-bottom; animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .scroll-indicator {
+    position: absolute; bottom: 48px; left: 0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .scroll-indicator .line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    animation: scroll-line 2s ease-in-out infinite;
+  }
+  @keyframes scroll-line {
+    0%, 100% { transform: scaleY(1); transform-origin: top; }
+    50% { transform: scaleY(0.4); transform-origin: top; }
+  }
+  .scroll-indicator span {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #444;
+  }
+
+  /* ========================================
+     About
+     ======================================== */
+  .about-layout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    align-items: start;
+  }
+  .about-text p {
+    font-size: 18px; line-height: 1.8; color: #bbb; font-weight: 300;
+  }
+  .about-text p + p { margin-top: 24px; }
+
+  .stats-col {
+    display: flex; flex-direction: column; gap: 48px;
+  }
+  .stat-item {
+    border-top: 1px solid var(--line); padding-top: 24px;
+  }
+  .stat-num {
+    font-size: 64px; font-weight: 200; letter-spacing: -2px;
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text-dim); margin-top: 8px;
+  }
+
+  /* ========================================
+     Services
+     ======================================== */
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--line);
+  }
+  .service-card {
+    background: var(--surface); padding: 48px 32px;
+    transition: all 0.4s ease; position: relative;
+  }
+  .service-card:hover { background: #0d0d0d; }
+  .service-num {
+    font-size: 12px; color: var(--text-dim); letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .service-card h3 {
+    font-size: 20px; font-weight: 400; letter-spacing: -0.5px;
+    margin-bottom: 16px;
+  }
+  .service-card p {
+    font-size: 14px; color: #888; line-height: 1.7; font-weight: 300;
+  }
+
+  /* ========================================
+     Experience Timeline
+     ======================================== */
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 1px; background: var(--line);
+  }
+  .timeline-item { position: relative; padding-bottom: 56px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -43px; top: 6px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #333; border: 1px solid #555;
+    transition: all 0.4s ease;
+  }
+  .timeline-item:hover::before {
+    background: #fff; border-color: #fff;
+    box-shadow: 0 0 16px rgba(255,255,255,0.3);
+  }
+  .timeline-year {
+    font-size: 11px; letter-spacing: 3px; color: var(--text-dim);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .timeline-item h3 {
+    font-size: 22px; font-weight: 400; letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .timeline-item .where {
+    font-size: 14px; color: var(--text-mid); font-weight: 300; margin-bottom: 10px;
+  }
+  .timeline-item p {
+    font-size: 14px; color: #777; line-height: 1.7; font-weight: 300;
+  }
+
+  /* ========================================
+     Skills
+     ======================================== */
+  .skills-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--line);
+  }
+  .skill-cell {
+    background: var(--surface); padding: 40px 24px;
+    text-align: center; transition: all 0.4s ease;
+  }
+  .skill-cell:hover { background: #0d0d0d; }
+  .skill-pct {
+    font-size: 48px; font-weight: 100; letter-spacing: -2px;
+    margin-bottom: 8px;
+  }
+  .skill-cell .skill-name {
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ========================================
+     Projects
+     ======================================== */
+  .projects-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--line);
+  }
+  .project-card {
+    background: var(--surface); padding: 48px 40px;
+    transition: all 0.4s ease; cursor: default;
+  }
+  .project-card:hover { background: #0d0d0d; }
+  .project-card .idx {
+    font-size: 11px; color: var(--text-dim); letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+  .project-card h3 {
+    font-size: 24px; font-weight: 300; letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .project-card p {
+    font-size: 14px; color: #888; line-height: 1.7; font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    font-size: 10px; padding: 5px 12px; border-radius: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px; text-transform: uppercase; color: #777;
+    transition: all 0.3s ease;
+  }
+  .project-card:hover .tag { border-color: rgba(255,255,255,0.2); color: #aaa; }
+
+  /* ========================================
+     Testimonials
+     ======================================== */
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+  }
+  .testimonial-card blockquote {
+    font-size: 15px; line-height: 1.7; color: #bbb; font-weight: 300;
+    margin-bottom: 20px; font-style: italic;
+  }
+  .testimonial-card .author {
+    font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+  }
+  .testimonial-card .role {
+    font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ========================================
+     Contact
+     ======================================== */
+  .contact-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--line);
+  }
+  .contact-info {
+    background: var(--surface); padding: 56px 48px;
+  }
+  .contact-info h3 {
+    font-size: 28px; font-weight: 300; letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .contact-info p {
+    font-size: 15px; color: #888; line-height: 1.7; font-weight: 300;
+    margin-bottom: 32px;
+  }
+  .contact-links { display: flex; flex-direction: column; gap: 16px; }
+  .contact-link {
+    display: flex; align-items: center; gap: 12px;
+    color: #777; text-decoration: none; font-size: 14px;
+    transition: all 0.3s ease; letter-spacing: 0.5px;
+  }
+  .contact-link:hover { color: #fff; }
+  .contact-link .arrow {
+    display: inline-block; width: 20px; height: 1px;
+    background: #444; transition: all 0.3s ease;
+  }
+  .contact-link:hover .arrow { background: #fff; width: 32px; }
+
+  .contact-cta {
+    background: var(--surface); padding: 56px 48px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .contact-cta .big-email {
+    font-size: clamp(24px, 4vw, 36px); font-weight: 200;
+    letter-spacing: -1px; color: #e6e6e6;
+    text-decoration: none; transition: color 0.3s;
+  }
+  .contact-cta .big-email:hover { color: #fff; }
+  .contact-cta .note {
+    font-size: 12px; color: var(--text-dim); letter-spacing: 1px;
+    margin-top: 16px;
+  }
+
+  /* ========================================
+     Footer
+     ======================================== */
+  footer {
+    position: relative; z-index: 1;
+    padding: 40px 24px; text-align: center;
+    border-top: 1px solid var(--line);
+  }
+  footer p {
+    font-size: 11px; color: #444; letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ========================================
+     Responsive
+     ======================================== */
+  @media (max-width: 900px) {
+    .about-layout { grid-template-columns: 1fr; gap: 48px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: repeat(2, 1fr); }
+    .projects-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; gap: 32px; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .nav-dots { display: none; }
+    section { padding: 80px 20px; }
+  }
+  @media (max-width: 500px) {
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .hero-flex h1 { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- ====== Nav Dots ====== -->
+<nav class="nav-dots">
+  <a class="nav-dot active" href="#hero"><span class="label">Top</span></a>
+  <a class="nav-dot" href="#about"><span class="label">About</span></a>
+  <a class="nav-dot" href="#services"><span class="label">Services</span></a>
+  <a class="nav-dot" href="#experience"><span class="label">Experience</span></a>
+  <a class="nav-dot" href="#skills"><span class="label">Skills</span></a>
+  <a class="nav-dot" href="#projects"><span class="label">Work</span></a>
+  <a class="nav-dot" href="#testimonials"><span class="label">Praise</span></a>
+  <a class="nav-dot" href="#contact"><span class="label">Contact</span></a>
+</nav>
+
+<!-- ====== Hero ====== -->
+<section class="hero-section" id="hero">
+  <div class="container">
+    <div class="hero-flex reveal">
+      <p class="hero-eyebrow">Developer · Designer · Creator</p>
+      <h1>Hello, I'm<br><em>John Doe</em>.</h1>
+      <p class="subtitle">
+        <span id="typewriter"></span><span class="cursor"></span>
+      </p>
+    </div>
+    <div class="scroll-indicator">
+      <div class="line"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====== About ====== -->
+<section id="about">
+  <div class="container">
+    <p class="section-label reveal">About</p>
+    <h2 class="section-title reveal">Building digital<br>experiences that matter.</h2>
+    <div class="about-layout">
+      <div class="about-text reveal">
+        <p>
+          I'm a full-stack developer and designer based in San Francisco, passionate about crafting
+          software that sits at the intersection of engineering precision and aesthetic clarity.
+          With over half a decade in the industry, I've shipped products used by millions.
+        </p>
+        <p>
+          My approach is rooted in first-principles thinking — every line of code and every pixel
+          must justify its existence. When I'm not building, you'll find me exploring generative art,
+          contributing to open-source projects, or hiking the Bay Area trails.
+        </p>
+      </div>
+      <div class="stats-col reveal">
+        <div class="stat-item">
+          <div class="stat-num" data-count="8">0</div>
+          <div class="stat-lbl">Years of experience</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="47">0</div>
+          <div class="stat-lbl">Projects shipped</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="16">0</div>
+          <div class="stat-lbl">Happy clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Services ====== -->
+<section id="services">
+  <div class="container">
+    <p class="section-label reveal">What I Do</p>
+    <h2 class="section-title reveal">Services &<br>Capabilities.</h2>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-num">01</div>
+        <h3>Web Applications</h3>
+        <p>End-to-end development of performant, accessible, and scalable web apps using modern frameworks and cloud infrastructure.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">02</div>
+        <h3>UI / UX Design</h3>
+        <p>Research-driven design systems, interactive prototypes, and pixel-perfect interfaces that prioritize user delight.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">03</div>
+        <h3>API & Backend</h3>
+        <p>Robust REST and GraphQL APIs, microservice architectures, real-time data pipelines, and database optimization.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">04</div>
+        <h3>Cloud & DevOps</h3>
+        <p>CI/CD pipelines, container orchestration, infrastructure as code, and zero-downtime deployment strategies.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">05</div>
+        <h3>AI Integration</h3>
+        <p>LLM-powered features, retrieval-augmented generation, intelligent chatbots, and predictive analytics for your products.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">06</div>
+        <h3>Consulting</h3>
+        <p>Architecture reviews, tech-stack audits, performance tuning, and mentoring for teams shipping ambitious software.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Experience ====== -->
+<section id="experience">
+  <div class="container">
+    <p class="section-label reveal">Career</p>
+    <h2 class="section-title reveal">Where I've<br>been.</h2>
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <div class="timeline-year">2024 — Present</div>
+        <h3>Senior Frontend Engineer</h3>
+        <div class="where">Acme Corp, San Francisco</div>
+        <p>Leading the design system overhaul across 12 product teams. Architected a component library that reduced UI bugs by 40% and accelerated feature delivery by 3×.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — 2024</div>
+        <h3>Full-Stack Developer</h3>
+        <div class="where">StartupXYZ, Remote</div>
+        <p>Built the core platform from zero to one — React frontend, Node.js backend, and AWS infrastructure. Grew the product to 50k+ monthly active users.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2020 — 2022</div>
+        <h3>Junior Developer</h3>
+        <div class="where">Digital Agency Co., New York</div>
+        <p>Shipped 20+ client projects across fintech, healthcare, and e-commerce. Won the internal hackathon twice with a real-time collaboration tool.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2018 — 2020</div>
+        <h3>Computer Science, B.S.</h3>
+        <div class="where">University of California, Berkeley</div>
+        <p>Focused on human-computer interaction and distributed systems. Published research on accessible interface design at CHI 2020.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Skills ====== -->
+<section id="skills">
+  <div class="container">
+    <p class="section-label reveal">Stack</p>
+    <h2 class="section-title reveal">Technologies<br>I work with.</h2>
+    <div class="skills-grid reveal">
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="98">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">TypeScript</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="95">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">React & Next.js</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="92">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">Node.js</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="90">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">Python</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="94">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">PostgreSQL</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="88">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">Docker & K8s</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="91">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">AWS / Cloud</div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-pct" data-count="87">0<span style="font-size:24px">%</span></div>
+        <div class="skill-name">Figma</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Projects ====== -->
+<section id="projects">
+  <div class="container">
+    <p class="section-label reveal">Selected Work</p>
+    <h2 class="section-title reveal">Projects I'm<br>proud of.</h2>
+    <div class="projects-grid reveal">
+      <div class="project-card">
+        <div class="idx">01</div>
+        <h3>Nebula Design System</h3>
+        <p>A comprehensive component library with 60+ accessible primitives, theming engine, and Figma sync. Adopted by 12 teams across the org.</p>
+        <div class="tags">
+          <span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">Storybook</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="idx">02</div>
+        <h3>Real-Time Collab Editor</h3>
+        <p>Google Docs-style collaborative text editor with CRDT-based conflict resolution, supporting 200+ concurrent users with sub-100ms latency.</p>
+        <div class="tags">
+          <span class="tag">WebSocket</span><span class="tag">CRDT</span><span class="tag">React</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="idx">03</div>
+        <h3>Edge Analytics Pipeline</h3>
+        <p>Streaming data pipeline processing 2M+ events/sec at the edge. Built with Rust for the ingestion layer and Python for the analytics engine.</p>
+        <div class="tags">
+          <span class="tag">Rust</span><span class="tag">Kafka</span><span class="tag">Python</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="idx">04</div>
+        <h3>AI Content Platform</h3>
+        <p>LLM-powered content generation and curation platform with RAG over proprietary datasets. Serves 10k+ enterprise users daily.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">LangChain</span><span class="tag">Pinecone</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="idx">05</div>
+        <h3>Cross-Platform Mobile App</h3>
+        <p>Fitness tracking app with social features, built with React Native. 4.8★ rating across both stores with 100k+ downloads.</p>
+        <div class="tags">
+          <span class="tag">React Native</span><span class="tag">GraphQL</span><span class="tag">Firebase</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="idx">06</div>
+        <h3>Open-Source CLI Toolkit</h3>
+        <p>Developer productivity suite with 15+ CLI utilities for code generation, linting, and deployment. 2.5k★ on GitHub.</p>
+        <div class="tags">
+          <span class="tag">Node.js</span><span class="tag">Commander</span><span class="tag">OCLIF</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Testimonials ====== -->
+<section id="testimonials">
+  <div class="container">
+    <p class="section-label reveal">Testimonials</p>
+    <h2 class="section-title reveal">What people<br>say.</h2>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <blockquote>
+          "John is one of those rare engineers who genuinely understands both the technical and human sides of product development. His work on our design system fundamentally changed how we ship."
+        </blockquote>
+        <div class="author">Sarah Chen</div>
+        <div class="role">VP of Engineering, Acme Corp</div>
+      </div>
+      <div class="testimonial-card">
+        <blockquote>
+          "Working with John was a masterclass in execution. He took our vague requirements and turned them into a production-ready platform in weeks, not months. His attention to detail is unmatched."
+        </blockquote>
+        <div class="author">Marcus Rivera</div>
+        <div class="role">CTO, StartupXYZ</div>
+      </div>
+      <div class="testimonial-card">
+        <blockquote>
+          "I've worked with dozens of developers over my career. John stands out for his ability to communicate complex ideas clearly and deliver consistently high-quality work. A true professional."
+        </blockquote>
+        <div class="author">Dr. Emily Park</div>
+        <div class="role">Professor of CS, UC Berkeley</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Contact ====== -->
+<section id="contact">
+  <div class="container">
+    <p class="section-label reveal">Get In Touch</p>
+    <h2 class="section-title reveal">Let's work<br>together.</h2>
+    <div class="contact-grid reveal">
+      <div class="contact-info">
+        <h3>Have a project<br>in mind?</h3>
+        <p>I'm currently available for freelance work and interesting collaborations. Whether you need a full product built or just want to brainstorm — I'd love to hear from you.</p>
+        <div class="contact-links">
+          <a class="contact-link" href="#"><span class="arrow"></span> GitHub</a>
+          <a class="contact-link" href="#"><span class="arrow"></span> LinkedIn</a>
+          <a class="contact-link" href="#"><span class="arrow"></span> Twitter / X</a>
+          <a class="contact-link" href="#"><span class="arrow"></span> Dribbble</a>
+        </div>
+      </div>
+      <div class="contact-cta">
+        <a class="big-email" href="mailto:hello@johndoe.com">hello@johndoe.com</a>
+        <p class="note">Typically responds within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2026 John Doe. All rights reserved.</p>
+</footer>
+
+<!-- ================================================================
+     Scripts
+     ================================================================ -->
+<script>
+// ===== Particle System (monochrome) =====
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+let mouse = { x: -9999, y: -9999, r: 140 };
+let scrollY = 0;
+const COUNT = 100;
+const particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = document.documentElement.scrollHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.35;
+    this.vy = (Math.random() - 0.5) * 0.35;
+    this.r = Math.random() * 1.5 + 0.5;
+    this.alpha = Math.random() * 0.25 + 0.1;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < -20) this.x = W + 20;
+    if (this.x > W + 20) this.x = -20;
+    if (this.y < -20) this.y = H + 20;
+    if (this.y > H + 20) this.y = -20;
+
+    const dx = this.x - mouse.x;
+    const dy = this.y - (mouse.y + scrollY);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < mouse.r) {
+      const force = (mouse.r - dist) / mouse.r;
+      const angle = Math.atan2(dy, dx);
+      this.x += Math.cos(angle) * force * 1.6;
+      this.y += Math.sin(angle) * force * 1.6;
+    }
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        const a = (1 - dist / 120) * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${a})`;
+        ctx.lineWidth = 0.3;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  for (const p of particles) { p.update(); p.draw(); }
+  drawLines();
+  requestAnimationFrame(animate);
+}
+animate();
+
+document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+document.addEventListener('scroll', () => { scrollY = window.scrollY; });
+document.addEventListener('touchmove', e => {
+  mouse.x = e.touches[0].clientX;
+  mouse.y = e.touches[0].clientY;
+}, { passive: true });
+
+// ===== Typewriter =====
+const words = ['Full-stack developer.', 'UI designer.', 'Open-source contributor.', 'Problem solver.'];
+let wi = 0, ci = 0, deleting = false;
+const el = document.getElementById('typewriter');
+
+function type() {
+  const cur = words[wi];
+  el.textContent = cur.substring(0, deleting ? --ci : ++ci);
+  let speed = deleting ? 45 : 100;
+  if (!deleting && ci === cur.length) { speed = 2200; deleting = true; }
+  else if (deleting && ci === 0) { speed = 350; deleting = false; wi = (wi + 1) % words.length; }
+  setTimeout(type, speed);
+}
+setTimeout(type, 600);
+
+// ===== Scroll Reveal =====
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Animate counter numbers
+      entry.target.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count);
+        if (el._animating) return;
+        el._animating = true;
+        let cur = 0;
+        const dur = 1600;
+        const step = target / (dur / 16);
+        (function tick() {
+          cur += step;
+          if (cur >= target) {
+            el.textContent = target;
+            // Append % or + based on context
+            const next = el.nextElementSibling;
+            return;
+          }
+          el.textContent = Math.floor(cur);
+          requestAnimationFrame(tick);
+        })();
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ===== Nav Dots =====
+const sections = document.querySelectorAll('section');
+const dots = document.querySelectorAll('.nav-dot');
+const secIds = [...sections].map(s => s.id);
+
+function updateDots() {
+  let active = secIds[0];
+  for (const id of secIds) {
+    const el = document.getElementById(id);
+    if (el.getBoundingClientRect().top <= window.innerHeight * 0.45) active = id;
+  }
+  dots.forEach(d => d.classList.toggle('active', d.getAttribute('href') === '#' + active));
+}
+window.addEventListener('scroll', updateDots);
+updateDots();
+
+// Nav dot smooth scroll
+dots.forEach(d => {
+  d.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(d.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
