@@ -292,14 +292,37 @@ const starMat=new THREE.PointsMaterial({color:0xffffff,size:0.06,transparent:tru
 const stars=new THREE.Points(starGeo,starMat);scene.add(stars);
 
 // --- Lighting ---
-const ambientLight=new THREE.AmbientLight(0x333355,1.5);scene.add(ambientLight);
-const sunLight=new THREE.DirectionalLight(0xffffff,2.5);sunLight.position.set(5,2,5);scene.add(sunLight);
+const ambientLight=new THREE.AmbientLight(0x222244,0.6);scene.add(ambientLight);
 
-// --- Earth ---
+// --- Earth (day/night shader) ---
 const texLoader=new THREE.TextureLoader();
-const earthTex=texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+const dayTex=texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+const nightTex=texLoader.load('https://threejs.org/examples/textures/planets/earth_lights_2048.png');
+
 const earthGeo=new THREE.SphereGeometry(2.0,128,128);
-const earthMat=new THREE.MeshStandardMaterial({map:earthTex,roughness:0.55,metalness:0.05});
+const lightDir=new THREE.Vector3(5,2,5).normalize();
+const earthShader={
+  vertexShader:/*glsl*/`
+    varying vec2 vUv;varying vec3 vNorm;varying vec3 vPos;
+    void main(){vUv=uv;vec4 wp=modelMatrix*vec4(position,1.0);vPos=wp.xyz;vNorm=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+  fragmentShader:/*glsl*/`
+    varying vec2 vUv;varying vec3 vNorm;varying vec3 vPos;
+    uniform sampler2D uDay,uNight;uniform vec3 uLightDir;
+    void main(){
+      vec3 N=normalize(vNorm);vec3 L=normalize(uLightDir);
+      float NdotL=dot(N,L);
+      float day=clamp(NdotL*6.0+0.35,0.0,1.0);
+      float night=1.0-day;
+      vec3 dayCol=texture2D(uDay,vUv).rgb;
+      vec3 nightCol=texture2D(uNight,vUv).rgb;
+      vec3 col=dayCol*day+nightCol*night*1.6;
+      float amb=0.06;
+      col+=dayCol*amb;
+      gl_FragColor=vec4(col,1.0);
+    }`,
+  uniforms:{uDay:{value:dayTex},uNight:{value:nightTex},uLightDir:{value:lightDir}}
+};
+const earthMat=new THREE.ShaderMaterial(earthShader);
 const earth=new THREE.Mesh(earthGeo,earthMat);scene.add(earth);
 
 // --- Atmosphere (Fresnel rim glow) ---
