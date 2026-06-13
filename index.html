@@ -77,8 +77,12 @@ section{position:relative;z-index:1;padding:var(--section-gap) 28px}
 .section-title em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 /* === REVEAL === */
-.reveal{opacity:0;transform:translateX(-80px);transition:opacity 0.9s var(--ease),transform 0.9s var(--ease)}
-.reveal.visible{opacity:1;transform:translateX(0)}
+.reveal-l{opacity:0;transform:translateX(-80px);transition:opacity 0.9s var(--ease),transform 0.9s var(--ease)}
+.reveal-l.visible{opacity:1;transform:translateX(0)}
+.reveal-r{opacity:0;transform:translateX(80px);transition:opacity 0.9s var(--ease),transform 0.9s var(--ease)}
+.reveal-r.visible{opacity:1;transform:translateX(0)}
+.reveal{opacity:0;transform:translateY(48px);transition:opacity 0.7s var(--ease),transform 0.7s var(--ease)}
+.reveal.visible{opacity:1;transform:translateY(0)}
 .reveal-d1{transition-delay:0.05s}.reveal-d2{transition-delay:0.10s}.reveal-d3{transition-delay:0.15s}.reveal-d4{transition-delay:0.20s}.reveal-d5{transition-delay:0.25s}.reveal-d6{transition-delay:0.30s}
 
 /* === HERO === */
@@ -184,14 +188,14 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
 
 <section class="hero-section" id="hero">
   <div class="container">
-    <div class="hero-flex reveal">
-      <div class="hero-tag">
+    <div class="hero-flex">
+      <div class="hero-tag reveal-l">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
         江苏省锡山中等专业学校
       </div>
-      <p class="hero-school reveal reveal-d1">毕业于江苏联合职业技术学院</p>
-      <h1 id="heroTitle">Hello, I'm<br><span style="font-weight:900;">徐超</span>.</h1>
-      <p class="subtitle"><span id="typewriter"></span><span class="cursor"></span></p>
+      <p class="hero-school reveal-r reveal-d1">毕业于江苏联合职业技术学院</p>
+      <h1 id="heroTitle" class="reveal-l reveal-d1">Hello, I'm<br><span style="font-weight:900;">徐超</span>.</h1>
+      <p class="subtitle reveal-r reveal-d2"><span id="typewriter"></span><span class="cursor"></span></p>
       <div class="hero-actions">
         <a href="#projects" class="btn btn-primary" data-magnet>看我的作品 <span class="arrow">→</span></a>
         <a href="#contact" class="btn btn-glass" data-magnet>联系我</a>
@@ -205,11 +209,11 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
     <span class="section-emoji reveal">👋</span>
     <h2 class="section-title reveal">Building digital<br><em>experiences</em> that matter.</h2>
     <div class="about-layout">
-      <div class="about-text reveal reveal-d1">
+      <div class="about-text reveal-l reveal-d1">
         <p>我是徐超，一名全栈开发者兼设计师。热衷在工程与美学的交叉点上打磨产品，坚信每一行代码、每一个像素都该有它存在的理由。</p>
         <p>工作之外，喜欢折腾开源项目、研究 AI，偶尔也爬山。目前常驻杭州。</p>
       </div>
-      <div class="stats-col reveal reveal-d2">
+      <div class="stats-col reveal-r reveal-d2">
         <div class="stat-card glass" data-tilt><div class="stat-num" data-count="6">0</div><div class="stat-lbl">年经验</div></div>
         <div class="stat-card glass" data-tilt><div class="stat-num" data-count="38">0</div><div class="stat-lbl">项目交付</div></div>
         <div class="stat-card glass" data-tilt><div class="stat-num" data-count="12">0</div><div class="stat-lbl">合作客户</div></div>
@@ -223,12 +227,12 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
     <span class="section-emoji reveal">⚡</span>
     <h2 class="section-title reveal">Services &<br><em>Capabilities</em>.</h2>
     <div class="services-grid">
-      <div class="service-card glass reveal reveal-d1" data-tilt data-glass><span class="emoji">🌐</span><div class="glass-ripple"><div class="ripple"></div></div><h3>Web 应用开发</h3><p>高性能、可访问、可扩展的全栈 Web 应用，React/Next.js 技术栈为主。</p></div>
-      <div class="service-card glass reveal reveal-d2" data-tilt data-glass><span class="emoji">🎨</span><div class="glass-ripple"><div class="ripple"></div></div><h3>UI / UX 设计</h3><p>设计系统、交互原型、像素级界面，以用户愉悦度为核心指标。</p></div>
-      <div class="service-card glass reveal reveal-d3" data-tilt data-glass><span class="emoji">⚙️</span><div class="glass-ripple"><div class="ripple"></div></div><h3>API & 后端</h3><p>REST / GraphQL API，微服务架构，实时数据管道，数据库优化。</p></div>
-      <div class="service-card glass reveal reveal-d4" data-tilt data-glass><span class="emoji">☁️</span><div class="glass-ripple"><div class="ripple"></div></div><h3>云 & DevOps</h3><p>CI/CD 流水线，容器编排，基础设施即代码，零停机部署。</p></div>
-      <div class="service-card glass reveal reveal-d5" data-tilt data-glass><span class="emoji">🤖</span><div class="glass-ripple"><div class="ripple"></div></div><h3>AI 集成</h3><p>大模型应用、RAG 检索增强、智能对话机器人、预测分析。</p></div>
-      <div class="service-card glass reveal reveal-d6" data-tilt data-glass><span class="emoji">💡</span><div class="glass-ripple"><div class="ripple"></div></div><h3>技术咨询</h3><p>架构评审、技术选型、性能调优、团队指导——帮你少踩坑。</p></div>
+      <div class="service-card glass reveal-l reveal-d1" data-tilt data-glass><span class="emoji">🌐</span><div class="glass-ripple"><div class="ripple"></div></div><h3>Web 应用开发</h3><p>高性能、可访问、可扩展的全栈 Web 应用，React/Next.js 技术栈为主。</p></div>
+      <div class="service-card glass reveal-r reveal-d2" data-tilt data-glass><span class="emoji">🎨</span><div class="glass-ripple"><div class="ripple"></div></div><h3>UI / UX 设计</h3><p>设计系统、交互原型、像素级界面，以用户愉悦度为核心指标。</p></div>
+      <div class="service-card glass reveal-l reveal-d3" data-tilt data-glass><span class="emoji">⚙️</span><div class="glass-ripple"><div class="ripple"></div></div><h3>API & 后端</h3><p>REST / GraphQL API，微服务架构，实时数据管道，数据库优化。</p></div>
+      <div class="service-card glass reveal-r reveal-d4" data-tilt data-glass><span class="emoji">☁️</span><div class="glass-ripple"><div class="ripple"></div></div><h3>云 & DevOps</h3><p>CI/CD 流水线，容器编排，基础设施即代码，零停机部署。</p></div>
+      <div class="service-card glass reveal-l reveal-d5" data-tilt data-glass><span class="emoji">🤖</span><div class="glass-ripple"><div class="ripple"></div></div><h3>AI 集成</h3><p>大模型应用、RAG 检索增强、智能对话机器人、预测分析。</p></div>
+      <div class="service-card glass reveal-r reveal-d6" data-tilt data-glass><span class="emoji">💡</span><div class="glass-ripple"><div class="ripple"></div></div><h3>技术咨询</h3><p>架构评审、技术选型、性能调优、团队指导——帮你少踩坑。</p></div>
     </div>
   </div>
 </section>
@@ -266,23 +270,23 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
   <div class="container">
     <span class="section-emoji reveal">✨</span>
     <h2 class="section-title reveal">Projects I'm<br><em>proud of</em>.</h2>
-    <div class="projects-grid reveal reveal-d1">
-      <div class="project-card glass" data-tilt data-glass>
+    <div class="projects-grid">
+      <div class="project-card glass reveal-l reveal-d1" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">01</div><h3>Nebula 设计系统</h3><p>60+ 无障碍组件库，主题引擎 + Figma 同步。已被 8 个团队采用，UI Bug 降低 35%。</p><div class="tags"><span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">Storybook</span></div></div>
-      <div class="project-card glass" data-tilt data-glass>
+      <div class="project-card glass reveal-r reveal-d2" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">02</div><h3>实时协作编辑器</h3><p>CRDT 冲突算法，200+ 并发用户，延迟低于 100ms。Google Docs 风格协同编辑体验。</p><div class="tags"><span class="tag">WebSocket</span><span class="tag">CRDT</span><span class="tag">React</span></div></div>
-      <div class="project-card glass" data-tilt data-glass>
+      <div class="project-card glass reveal-l reveal-d3" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">03</div><h3>边缘分析管道</h3><p>流式数据管道，2M+ 事件/秒。Rust 编写接入层，Python 编写分析引擎。</p><div class="tags"><span class="tag">Rust</span><span class="tag">Kafka</span><span class="tag">Python</span></div></div>
-      <div class="project-card glass" data-tilt data-glass>
+      <div class="project-card glass reveal-r reveal-d4" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">04</div><h3>AI 内容平台</h3><p>LLM 驱动的智能内容平台，RAG 检索增强。日服务 8k+ 企业用户。</p><div class="tags"><span class="tag">Next.js</span><span class="tag">LangChain</span><span class="tag">Pinecone</span></div></div>
-      <div class="project-card glass" data-tilt data-glass>
+      <div class="project-card glass reveal-l reveal-d5" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">05</div><h3>跨平台 App</h3><p>React Native 开发的健身社交应用，双端 4.8★ 评分，10 万+ 次下载。</p><div class="tags"><span class="tag">React Native</span><span class="tag">GraphQL</span><span class="tag">Firebase</span></div></div>
-      <div class="project-card glass" data-tilt data-glass>
+      <div class="project-card glass reveal-r reveal-d6" data-tilt data-glass>
         <div class="glass-ripple"><div class="ripple"></div></div>
         <div class="idx">06</div><h3>开源 CLI 工具集</h3><p>15+ CLI 实用工具：代码生成、linting、部署。GitHub 2.5k★。</p><div class="tags"><span class="tag">Node.js</span><span class="tag">Commander</span><span class="tag">OCLIF</span></div></div>
     </div>
@@ -293,9 +297,9 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
   <div class="container">
     <span class="section-emoji reveal">📬</span>
     <h2 class="section-title reveal">Let's work<br><em>together</em>.</h2>
-    <div class="contact-grid reveal reveal-d1">
-      <div class="contact-panel glass"><h3>有项目<br>想聊聊？</h3><p>目前接受自由职业和有趣的合作机会。不管你是想做一个完整产品，还是只是想头脑风暴一下——都欢迎来找我。</p><div class="contact-links"><a class="contact-link" href="#">GitHub</a><a class="contact-link" href="#">LinkedIn</a><a class="contact-link" href="#">Twitter / X</a></div></div>
-      <div class="contact-panel glass contact-cta"><a class="big-email" href="mailto:hello@xuchao.dev">hello@xuchao.dev</a><p class="note">一般 24 小时内回复</p></div>
+    <div class="contact-grid">
+      <div class="contact-panel glass reveal-l reveal-d1"><h3>有项目<br>想聊聊？</h3><p>目前接受自由职业和有趣的合作机会。不管你是想做一个完整产品，还是只是想头脑风暴一下——都欢迎来找我。</p><div class="contact-links"><a class="contact-link" href="#">GitHub</a><a class="contact-link" href="#">LinkedIn</a><a class="contact-link" href="#">Twitter / X</a></div></div>
+      <div class="contact-panel glass contact-cta reveal-r reveal-d2"><a class="big-email" href="mailto:hello@xuchao.dev">hello@xuchao.dev</a><p class="note">一般 24 小时内回复</p></div>
     </div>
   </div>
 </section>
@@ -473,7 +477,7 @@ function type(){const cur=words[wi];tw.textContent=cur.substring(0,deleting?--ci
 // REVEAL + NUMBERS
 // ==========================================
 const obs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');entry.target.querySelectorAll('[data-count]').forEach(el=>{const t=parseInt(el.dataset.count);if(el._done)return;el._done=true;let c=0;const s=t/(1400/16);function tick(){c+=s;if(c>=t){el.textContent=t;return}el.textContent=Math.floor(c);requestAnimationFrame(tick)}tick()});obs.unobserve(entry.target)}})},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el=>obs.observe(el));
 
 // ==========================================
 // DOT NAV
