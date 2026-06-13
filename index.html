@@ -292,7 +292,7 @@ const starMat=new THREE.PointsMaterial({color:0xffffff,size:0.06,transparent:tru
 const stars=new THREE.Points(starGeo,starMat);scene.add(stars);
 
 // --- Lighting ---
-const ambientLight=new THREE.AmbientLight(0x222244,0.6);scene.add(ambientLight);
+const ambientLight=new THREE.AmbientLight(0x334466,1.0);scene.add(ambientLight);
 
 // --- Earth (day/night shader) ---
 const texLoader=new THREE.TextureLoader();
@@ -311,13 +311,22 @@ const earthShader={
     void main(){
       vec3 N=normalize(vNorm);vec3 L=normalize(uLightDir);
       float NdotL=dot(N,L);
-      float day=clamp(NdotL*6.0+0.35,0.0,1.0);
-      float night=1.0-day;
+      // Smooth twilight transition
+      float day=smoothstep(-0.2,0.3,NdotL);
       vec3 dayCol=texture2D(uDay,vUv).rgb;
       vec3 nightCol=texture2D(uNight,vUv).rgb;
-      vec3 col=dayCol*day+nightCol*night*1.6;
-      float amb=0.06;
-      col+=dayCol*amb;
+      // Day side: bright vivid earth
+      vec3 lit=dayCol*pow(day,0.6)*1.15;
+      // Night side: deep blue + city lights glow
+      vec3 dark=nightCol*1.8+vec3(0.01,0.02,0.08)*(1.0-day);
+      // Twilight zone: soft blue atmosphere scatter
+      float twilight=smoothstep(-0.1,0.1,NdotL);
+      vec3 twiCol=mix(lit,dark,0.5)+vec3(0.05,0.1,0.25)*(1.0-abs(NdotL)*2.0);
+      vec3 col=mix(lit,dark,1.0-day);
+      col=mix(col,twiCol,twilight*0.3);
+      // Specular on ocean (sun-facing side)
+      float spec=max(0.0,NdotL)*0.25;
+      col+=spec*vec3(0.3,0.32,0.35)*dayCol;
       gl_FragColor=vec4(col,1.0);
     }`,
   uniforms:{uDay:{value:dayTex},uNight:{value:nightTex},uLightDir:{value:lightDir}}
