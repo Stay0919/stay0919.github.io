@@ -306,7 +306,7 @@ footer p{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:2px;f
 
 <script>
 // ==========================================
-// COSMIC NEBULA + STARFIELD
+// COSMIC NEBULA + STARFIELD + BLACK HOLE
 // ==========================================
 const wc=document.getElementById('waterCanvas');
 const wctx=wc.getContext('2d');
@@ -320,32 +320,21 @@ function rw(){ww=wc.width=window.innerWidth;wh=wc.height=document.documentElemen
 
 // Nebula clouds
 const nebColors=[
-  [99,60,200,0.50],   // deep purple
-  [180,50,150,0.40],  // magenta
-  [40,100,220,0.45],  // cosmic blue
-  [220,80,100,0.35],  // crimson
-  [60,160,200,0.42],  // teal
-  [140,70,200,0.38],  // violet
-  [30,180,220,0.40],  // cyan
-  [200,120,60,0.30],  // warm orange
+  [99,60,200,0.50],[180,50,150,0.40],[40,100,220,0.45],[220,80,100,0.35],
+  [60,160,200,0.42],[140,70,200,0.38],[30,180,220,0.40],[200,120,60,0.30],
 ];
 
 class Nebula{
   constructor(){
-    this.x=Math.random()*ww;
-    this.y=Math.random()*wh;
+    this.x=Math.random()*ww;this.y=Math.random()*wh;
     this.r=250+Math.random()*450;
-    this.vx=(Math.random()-0.5)*0.15;
-    this.vy=(Math.random()-0.5)*0.15;
+    this.vx=(Math.random()-0.5)*0.15;this.vy=(Math.random()-0.5)*0.15;
     this.color=nebColors[Math.floor(Math.random()*nebColors.length)];
   }
   update(sy){
-    this.x+=this.vx;
-    this.y+=this.vy+sy*0.0002;
-    if(this.x<-this.r)this.x=ww+this.r;
-    if(this.x>ww+this.r)this.x=-this.r;
-    if(this.y<-this.r)this.y=wh+this.r;
-    if(this.y>wh+this.r)this.y=-this.r;
+    this.x+=this.vx;this.y+=this.vy+sy*0.0002;
+    if(this.x<-this.r)this.x=ww+this.r;if(this.x>ww+this.r)this.x=-this.r;
+    if(this.y<-this.r)this.y=wh+this.r;if(this.y>wh+this.r)this.y=-this.r;
   }
   draw(){
     const[r,g,b,a]=this.color;
@@ -354,52 +343,171 @@ class Nebula{
     grad.addColorStop(0.4,`rgba(${r},${g},${b},${a*0.6})`);
     grad.addColorStop(0.8,`rgba(${r},${g},${b},${a*0.1})`);
     grad.addColorStop(1,'rgba(0,0,0,0)');
-    wctx.fillStyle=grad;
-    wctx.beginPath();
-    wctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-    wctx.fill();
+    wctx.fillStyle=grad;wctx.beginPath();wctx.arc(this.x,this.y,this.r,0,Math.PI*2);wctx.fill();
   }
 }
 
-// Stars
 class Star{
   constructor(){
-    this.x=Math.random()*ww;
-    this.y=Math.random()*wh;
-    this.r=Math.random()*1.4+0.3;
-    this.brightness=Math.random();
-    this.twinkleSpeed=0.003+Math.random()*0.01;
-    this.twinklePhase=Math.random()*Math.PI*2;
+    this.x=Math.random()*ww;this.y=Math.random()*wh;
+    this.r=Math.random()*1.4+0.3;this.brightness=Math.random();
+    this.twinkleSpeed=0.003+Math.random()*0.01;this.twinklePhase=Math.random()*Math.PI*2;
   }
   draw(time){
     const twinkle=0.5+0.5*Math.sin(time*this.twinkleSpeed+this.twinklePhase);
     const alpha=this.brightness*0.6+twinkle*0.4;
-    wctx.fillStyle=`rgba(255,255,255,${alpha})`;
-    wctx.beginPath();
-    wctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-    wctx.fill();
+    wctx.fillStyle=`rgba(255,255,255,${alpha})`;wctx.beginPath();
+    wctx.arc(this.x,this.y,this.r,0,Math.PI*2);wctx.fill();
   }
 }
 
 for(let i=0;i<NCOUNT;i++)nebulae.push(new Nebula());
 for(let i=0;i<SCOUNT;i++)stars.push(new Star());
 
+// === BLACK HOLE ===
+// Position: right side of hero, offset
+const bh={x:0,y:0,er:60,pr:72,diskOuter:240,diskInner:68,tilt:0.45};
+const bhParticles=[];
+const BH_PCOUNT=250;
+
+class BHParticle{
+  constructor(){
+    this.reset();
+    // random initial angle so they're spread around the disk
+    this.angle=Math.random()*Math.PI*2;
+    this.dist=bh.diskInner+Math.random()*(bh.diskOuter-bh.diskInner);
+  }
+  reset(){
+    this.angle=Math.random()*Math.PI*2;
+    this.dist=bh.diskOuter-Math.random()*30;
+    this.speed=0.003+Math.random()*0.008;
+    this.inwardSpeed=0.02+Math.random()*0.06;
+    this.size=0.3+Math.random()*1.0;
+    this.life=1.0;
+    this.colorPhase=Math.random();
+  }
+  update(cursorDist){
+    // Kepler-like: closer = faster
+    const kepler=1/((this.dist-bh.diskInner+10)/10);
+    this.angle+=this.speed*kepler*3;
+    // Slowly spiral inward
+    this.dist-=this.inwardSpeed*(0.5+kepler*0.5);
+    // Cursor proximity speeds things up
+    if(cursorDist<400){this.angle+=0.02*(1-cursorDist/400);this.dist-=0.15*(1-cursorDist/400)}
+    if(this.dist<=bh.er+2)this.reset();
+    this.life=1-(bh.diskOuter-this.dist)/(bh.diskOuter-bh.diskInner);
+  }
+  draw(){
+    const t=this.life;
+    // inner white-hot → gold → orange → dark red outer
+    let r,g,b;
+    if(t<0.25){r=255;g=240;b=220}         // white-hot inner
+    else if(t<0.5){r=255;g=180+60*(1-(t-0.25)/0.25);b=80}  // yellow→orange
+    else if(t<0.75){r=255;g=100+40*(1-(t-0.5)/0.25);b=40}  // orange→red
+    else{r=180+75*((t-0.75)/0.25);g=30;b=20}                // red→dark
+    const alpha=0.15+0.55*(1-t);
+    wctx.fillStyle=`rgba(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)},${alpha})`;
+    wctx.beginPath();wctx.arc(this.px,this.py,this.size,0,Math.PI*2);wctx.fill();
+  }
+}
+
+for(let i=0;i<BH_PCOUNT;i++)bhParticles.push(new BHParticle());
+
 let cmx=-9999,cmy=-9999,csy=0;
 document.addEventListener('mousemove',e=>{cmx=e.clientX;cmy=e.clientY});
 document.addEventListener('touchmove',e=>{cmx=e.touches[0].clientX;cmy=e.touches[0].clientY},{passive:true});
 window.addEventListener('scroll',()=>{csy=window.scrollY});
 
+function drawBlackHole(time){
+  // Update position — follows scroll with parallax, stays in hero view
+  const viewH=window.innerHeight;
+  bh.x=ww*0.62+Math.sin(time*0.0002)*15;
+  bh.y=viewH*0.28+csy*0.5+Math.cos(time*0.0003)*10;
+
+  const cursorDist=Math.hypot(cmx-bh.x,cmy+csy-bh.y);
+
+  // === Accretion disk glow (behind particles) ===
+  // Outer glow
+  const outerGlow=wctx.createRadialGradient(bh.x,bh.y,bh.er,bh.x,bh.y,bh.diskOuter+40);
+  outerGlow.addColorStop(0,'rgba(255,200,100,0.3)');
+  outerGlow.addColorStop(0.3,'rgba(255,140,40,0.15)');
+  outerGlow.addColorStop(0.6,'rgba(180,50,20,0.04)');
+  outerGlow.addColorStop(1,'rgba(0,0,0,0)');
+  wctx.fillStyle=outerGlow;wctx.beginPath();
+  wctx.ellipse(bh.x,bh.y,bh.diskOuter+40,(bh.diskOuter+40)*Math.cos(bh.tilt),0,0,Math.PI*2);wctx.fill();
+
+  // === Accretion disk (tilted ellipse) ===
+  wctx.save();
+  wctx.translate(bh.x,bh.y);
+  wctx.scale(1,Math.cos(bh.tilt));
+
+  // Disk gradient — hot inner to cool outer
+  const diskGrad=wctx.createRadialGradient(0,0,bh.diskInner,0,0,bh.diskOuter);
+  diskGrad.addColorStop(0,'rgba(255,220,180,0.35)');
+  diskGrad.addColorStop(0.15,'rgba(255,180,80,0.30)');
+  diskGrad.addColorStop(0.35,'rgba(255,120,40,0.20)');
+  diskGrad.addColorStop(0.6,'rgba(200,50,20,0.08)');
+  diskGrad.addColorStop(1,'rgba(0,0,0,0)');
+  wctx.fillStyle=diskGrad;wctx.beginPath();wctx.arc(0,0,bh.diskOuter,0,Math.PI*2);wctx.fill();
+
+  // Inner bright ring
+  const innerRing=wctx.createRadialGradient(0,0,bh.diskInner-4,0,0,bh.diskInner+8);
+  innerRing.addColorStop(0,'rgba(255,255,240,0.5)');
+  innerRing.addColorStop(0.5,'rgba(255,200,100,0.3)');
+  innerRing.addColorStop(1,'rgba(0,0,0,0)');
+  wctx.fillStyle=innerRing;wctx.beginPath();wctx.arc(0,0,bh.diskInner+8,0,Math.PI*2);wctx.fill();
+  wctx.restore();
+
+  // === Spiral particles ===
+  for(const p of bhParticles){
+    p.update(cursorDist);
+    p.px=bh.x+Math.cos(p.angle)*p.dist*Math.cos(bh.tilt);
+    p.py=bh.y+Math.sin(p.angle)*p.dist;
+    p.draw();
+  }
+
+  // === Photon ring (thin bright ring at event horizon edge) ===
+  const photonGlow=wctx.createRadialGradient(bh.x,bh.y,bh.er-3,bh.x,bh.y,bh.pr+6);
+  photonGlow.addColorStop(0,'rgba(0,0,0,0)');
+  photonGlow.addColorStop(0.3,'rgba(255,240,255,0.5)');
+  photonGlow.addColorStop(0.6,'rgba(200,180,255,0.2)');
+  photonGlow.addColorStop(1,'rgba(0,0,0,0)');
+  wctx.fillStyle=photonGlow;wctx.beginPath();wctx.arc(bh.x,bh.y,bh.pr+6,0,Math.PI*2);wctx.fill();
+
+  // Thin photon ring
+  wctx.strokeStyle='rgba(255,240,255,0.5)';wctx.lineWidth=1.2;
+  wctx.beginPath();wctx.arc(bh.x,bh.y,bh.pr,0,Math.PI*2);wctx.stroke();
+
+  // === Event horizon (pure black center) ===
+  wctx.fillStyle='#000';wctx.beginPath();
+  wctx.arc(bh.x,bh.y,bh.er,0,Math.PI*2);wctx.fill();
+
+  // === Gravitational lensing — stars near BH shifted inward ===
+  // (Subtle: draw a few extra faint stars near the photon ring)
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2+time*0.0002;
+    const d=bh.pr+8+Math.sin(i*2.5+time*0.001)*6;
+    const sx=bh.x+Math.cos(a)*d*Math.cos(bh.tilt);
+    const sy=bh.y+Math.sin(a)*d;
+    const alpha=0.2+0.15*Math.sin(time*0.002+i);
+    wctx.fillStyle=`rgba(200,180,255,${alpha})`;wctx.beginPath();
+    wctx.arc(sx,sy,0.8,0,Math.PI*2);wctx.fill();
+  }
+}
+
 function drawNebula(time){
-  wctx.fillStyle='#080814';
-  wctx.fillRect(0,0,ww,wh);
-
-  // Nebula clouds
+  wctx.fillStyle='#080814';wctx.fillRect(0,0,ww,wh);
   for(const n of nebulae){n.update(csy);n.draw()}
-
-  // Stars
-  for(const s of stars)s.draw(time);
-
-  // Cursor glow — starlight follows cursor
+  // Stars near BH get pulled (gravitational lensing hint)
+  for(const s of stars){
+    const dx=s.x-bh.x,dy=s.y-bh.y,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<bh.diskOuter+100){
+      const pull=(1-dist/(bh.diskOuter+100))*15;
+      s.x+=dx/dist*pull*0.03;s.y+=dy/dist*pull*0.03;
+    }
+    s.draw(time);
+  }
+  drawBlackHole(time);
   if(cmx>-9999){
     const glow=wctx.createRadialGradient(cmx,cmy+csy,0,cmx,cmy+csy,200);
     glow.addColorStop(0,'rgba(180,160,255,0.08)');
