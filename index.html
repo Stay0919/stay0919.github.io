@@ -323,7 +323,8 @@ const earthShader={
   uniforms:{uDay:{value:dayTex},uNight:{value:nightTex},uLightDir:{value:lightDir}}
 };
 const earthMat=new THREE.ShaderMaterial(earthShader);
-const earth=new THREE.Mesh(earthGeo,earthMat);scene.add(earth);
+const earth=new THREE.Mesh(earthGeo,earthMat);
+earth.position.set(2.8,0,0);scene.add(earth);
 
 // --- Atmosphere (Fresnel rim glow) ---
 const atmoGeo=new THREE.SphereGeometry(2.10,128,128);
@@ -366,18 +367,15 @@ function animate(time){
   camera.position.z+=(targetZ-camera.position.z)*0.03;
   camera.position.x+=(-mx*2.0-camera.position.x)*0.03;
   camera.position.y+=(0.5+my*1.2-camera.position.y)*0.03;
-  camera.lookAt(0,0,0);
+  camera.lookAt(2.8,0,0);
 
   // Earth rotation (subtle + mouse influence)
   earth.rotation.y+=dt*0.06;
   earth.rotation.y+=mx*0.002;
-
-  // Clouds rotate slightly faster
-  clouds.rotation.y+=dt*0.08;
-  clouds.rotation.y+=mx*0.003;
-
-  // Atmosphere follows
+  clouds.rotation.y+=dt*0.08+mx*0.003;
+  clouds.position.copy(earth.position);
   atmosphere.rotation.copy(earth.rotation);
+  atmosphere.position.copy(earth.position);
   atmoMat.uniforms.uCam.value.copy(camera.position);
 
   // Starfield subtle rotation
