@@ -48,6 +48,8 @@ body {
 #liquidCanvas {
   position: fixed; top: 0; left: 0; z-index: 0;
   pointer-events: none;
+  filter: blur(55px) contrast(1.25);
+  opacity: 0.85;
 }
 
 /* ============================================================
@@ -774,7 +776,7 @@ const lctx = lc.getContext('2d');
 
 let lw, lh;
 const blobs = [];
-const BLOB_COUNT = 7;
+const BLOB_COUNT = 8;
 
 function resizeLiquid() {
   lw = lc.width = window.innerWidth;
@@ -784,13 +786,14 @@ resizeLiquid();
 window.addEventListener('resize', resizeLiquid);
 
 const blobColors = [
-  [245, 158, 11, 0.22],   // amber
-  [79, 70, 229, 0.18],    // indigo
-  [139, 92, 246, 0.16],   // violet
-  [236, 72, 153, 0.14],   // pink
-  [14, 165, 233, 0.16],   // sky
-  [34, 197, 94, 0.12],    // green
-  [249, 115, 22, 0.13],   // orange
+  [255, 180, 50, 0.55],    // warm amber
+  [99, 102, 241, 0.50],    // indigo
+  [168, 85, 247, 0.48],    // violet
+  [244, 114, 182, 0.45],   // pink
+  [56, 189, 248, 0.48],    // sky blue
+  [74, 222, 128, 0.42],    // green
+  [251, 146, 60, 0.45],    // orange
+  [250, 204, 21, 0.42],    // yellow
 ];
 
 class Blob {
@@ -799,7 +802,7 @@ class Blob {
     this.y = Math.random() * lh;
     this.baseX = this.x;
     this.baseY = this.y;
-    this.r = 160 + Math.random() * 220;
+    this.r = 240 + Math.random() * 320;
     this.vx = (Math.random() - 0.5) * 0.25;
     this.vy = (Math.random() - 0.5) * 0.25;
     this.color = blobColors[Math.floor(Math.random() * blobColors.length)];
